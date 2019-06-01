@@ -61,3 +61,19 @@ RUN git clone https://github.com/nysol/mcmd.git; \
     cd mcmd; aclocal; autoreconf -i; ./configure; make; make install; \
     rm -rf /github/mcmd;
 
+# nysol_python
+RUN echo '2019/06/01 0:00'
+WORKDIR /github
+RUN git clone https://github.com/nysol/nysol_python.git
+WORKDIR nysol_python
+RUN python setup.py build;
+RUN python setup.py install;
+
+# mbomsai, mkmeans, etc
+WORKDIR /github
+RUN git clone https://github.com/nysol/mcmdex.git; \
+    cd mcmdex; aclocal; autoreconf -i; ./configure; make; make install; \
+    rm -rf /github/mcmdex.git;
+
+# nysol_ruby
+# RUN gem install nysol-ruby
