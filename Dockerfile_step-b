@@ -1,4 +1,4 @@
-FROM nysol/core:step-a.0.1.3
+FROM nysol/core:step-a
 
 LABEL maintainer="Hiro Maru <hiro.maruhashi@nysol.co.jp>"
 
