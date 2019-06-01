@@ -1,0 +1,4 @@
+FROM nysol/core:0.2
+
+LABEL maintainer="Hiro Maru <hiro.maruhashi@nysol.co.jp>"
+
