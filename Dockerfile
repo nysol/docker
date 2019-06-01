@@ -1,3 +1,5 @@
+###############################################################################
+# step-a
 FROM centos:centos7.3.1611
 
 LABEL maintainer="Hiro Maru <hiro.maruhashi@nysol.co.jp>"
@@ -67,6 +69,12 @@ RUN git clone https://github.com/nysol/mcmdex.git; \
     cd mcmdex; aclocal; autoreconf -i; ./configure; make; make install; \
     rm -rf /github/mcmdex.git;
 
+###############################################################################
+# step-b
+FROM nysol/core:step-a
+
+LABEL maintainer="Hiro Maru <hiro.maruhashi@nysol.co.jp>"
+
 # zdd
 RUN gem install nysol-zdd
 
@@ -123,6 +131,12 @@ RUN yum -y install R; \
 # 日本語フォント for matplotlib
 ADD IPAfont00303.zip /usr/share/fonts
 RUN unzip -d /usr/share/fonts /usr/share/fonts/IPAfont00303.zip
+
+###############################################################################
+# step-z
+FROM nysol/core:step-b
+
+LABEL maintainer="Hiro Maru <hiro.maruhashi@nysol.co.jp>"
 
 ### application用
 # python
