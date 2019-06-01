@@ -61,6 +61,12 @@ RUN git clone https://github.com/nysol/mcmd.git; \
     cd mcmd; aclocal; autoreconf -i; ./configure; make; make install; \
     rm -rf /github/mcmd;
 
+# mdmdex ( mbomsai, mkmeans, etc )
+WORKDIR /github
+RUN git clone https://github.com/nysol/mcmdex.git; \
+    cd mcmdex; aclocal; autoreconf -i; ./configure; make; make install; \
+    rm -rf /github/mcmdex.git;
+
 # zdd
 RUN gem install nysol-zdd
 
@@ -94,6 +100,16 @@ RUN git clone https://github.com/mynlp/enju.git; \
     cd enju; ./configure; make; make install; \
     rm -rf /github/enju;
 
+# nysol_python
+WORKDIR /github
+RUN git clone https://github.com/nysol/nysol_python.git
+WORKDIR nysol_python
+RUN python setup.py build;
+RUN python setup.py install;
+
+# nysol_ruby
+# RUN gem install nysol-ruby
+
 ### その他ライブラリ
 # nkf
 RUN yum -y install epel-release nkf; \
@@ -107,23 +123,6 @@ RUN yum -y install R; \
 # 日本語フォント for matplotlib
 ADD IPAfont00303.zip /usr/share/fonts
 RUN unzip -d /usr/share/fonts /usr/share/fonts/IPAfont00303.zip
-
-# nysol_python
-RUN echo '2019/06/01 0:00'
-WORKDIR /github
-RUN git clone https://github.com/nysol/nysol_python.git
-WORKDIR nysol_python
-RUN python setup.py build;
-RUN python setup.py install;
-
-# mbomsai, mkmeans, etc
-WORKDIR /github
-RUN git clone https://github.com/nysol/mcmdex.git; \
-    cd mcmdex; aclocal; autoreconf -i; ./configure; make; make install; \
-    rm -rf /github/mcmdex.git;
-
-# nysol_ruby
-# RUN gem install nysol-ruby
 
 ### application用
 # python
@@ -174,5 +173,5 @@ RUN pip install keract
 RUN pip install pydotplus
 
 # ユーザー環境設定
-WORKDIR /root
+WORKDIR /work
 ENV LD_LIBRARY_PATH /usr/local/lib
