@@ -61,3 +61,37 @@ RUN cd /github; git clone https://github.com/nysol/mcmd.git;\
     rm -rf /github/mcmdex.git;
 
 ###<<< step-b1
+
+# zdd, take, mining, mruby, meach, view, fumi, nysol_python,etc
+RUN gem install nysol-zdd;\
+    gem install nysol-take;\
+    gem install nysol-mining;\
+    gem install nysol;\
+    gem install nysol-view;\
+    gem install nysol-fumi;\
+    \
+    cd /github; git clone https://github.com/nysol/nysol_python.git;\
+    cd nysol_python; python setup.py build; python setup.py install;
+
+# nysol_ruby
+# RUN gem install nysol-ruby
+
+#  gpmetis, JUMAN, KNP, ENJU, nkf, graphviz, R
+RUN rpm -Uvh http://download-ib01.fedoraproject.org/pub/epel/7/x86_64/Packages/m/metis-5.1.0-12.el7.x86_64.rpm;\
+    \
+    cd /work; curl -O http://nlp.ist.i.kyoto-u.ac.jp/nl-resource/juman/juman-7.01.tar.bz2; tar jxvf juman-7.01.tar.bz2;\
+    cd juman-7.01; ./configure; make; make install;\
+    \
+    cd /work; curl -O http://nlp.ist.i.kyoto-u.ac.jp/nl-resource/knp/knp-4.19.tar.bz2; tar jxvf knp-4.19.tar.bz2;\
+		cd knp-4.19; ./configure; make; make install; rm -rf /work/*;\
+    \
+		cd /github; git clone https://github.com/mynlp/enju.git;\
+    cd enju; ./configure; make; make install;\
+    rm -rf /github/enju;\
+    \
+    yum -y install epel-release nkf; \
+    yum -y install 'graphviz': \
+    yum -y install R; \
+    rm -rf /var/cache/yum/*; yum clean all;
+
+###<<< step-b2
