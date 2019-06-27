@@ -90,7 +90,7 @@ RUN rpm -Uvh http://download-ib01.fedoraproject.org/pub/epel/7/x86_64/Packages/m
     rm -rf /github/enju;\
     \
     yum -y install epel-release nkf; \
-    yum -y install 'graphviz': \
+    yum -y install 'graphviz'; \
     yum -y install R; \
     rm -rf /var/cache/yum/*; yum clean all;
 
@@ -102,7 +102,7 @@ RUN unzip -d /usr/share/fonts /usr/share/fonts/IPAfont00303.zip
 
 # application用 (python, ruby, node.js)
 RUN pip install --upgrade pip;\
-    pip install flask:\
+    pip install flask;\
     pip install -U flask-cors;\
     pip install gevent-websocket;\
     \
@@ -154,5 +154,12 @@ RUN pip install pip-review;\
     pip install ipython-sql;
 
 # ユーザー環境設定
-WORKDIR /work
 ENV LD_LIBRARY_PATH /usr/local/lib
+
+RUN yum -y install sudo;\
+    rm -rf /var/cache/yum/*; yum clean all;\
+    useradd -m nysol;\
+    echo "nysol:nysol" | chpasswd;\
+    echo "nysol ALL=(ALL) ALL" >> /etc/sudoers;
+
+WORKDIR /home/nysol
