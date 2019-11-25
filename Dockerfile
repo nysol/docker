@@ -16,7 +16,7 @@ ENV LANG="ja_JP.UTF-8" \
     LANGUAGE="ja_JP:ja" \
     LC_ALL="ja_JP.UTF-8"
 # 日付を日本語に設定
-RUN echo 'ZONE="Asia/Tokyo"' > /etc/sysconfig/clock; \ 
+RUN echo 'ZONE="Asia/Tokyo"' > /etc/sysconfig/clock; \
     rm -f /etc/localtime; \
     ln -fs /usr/share/zoneinfo/Asia/Tokyo /etc/localtime;
 
@@ -37,7 +37,7 @@ RUN rbenv init -;\
     ./install.sh; \
     yum install -y zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel; \
     rm -rf /var/cache/yum/*; yum clean all; \
-    rbenv install 2.5.1; rbenv rehash; rbenv global 2.5.1;
+    rbenv install 2.6.3; rbenv rehash; rbenv global 2.6.3;
 
 # python
 RUN cd /github; git clone https://github.com/pyenv/pyenv.git;\
@@ -46,7 +46,9 @@ RUN cd /github; git clone https://github.com/pyenv/pyenv.git;\
     echo 'eval "$(pyenv init -)"' >> ~/.bash_profile;
 ENV PYENV_ROOT="/github/pyenv" \
     PATH="/github/pyenv/bin:$PATH"
-RUN pyenv init -; pyenv install 3.6.5; pyenv global 3.6.5;
+RUN yum install -y libffi-devel;\
+    rm -rf /var/cache/yum/*; yum clean all;\
+    pyenv init -; pyenv install 3.7.3; pyenv global 3.7.3;
 
 # rbenv/pyenv関連パス設定
 ENV PATH="$PYENV_ROOT/shims:$RBENV_ROOT/shims:$RBENV_ROOT/plugins/ruby-build/bin:$PATH"
@@ -95,6 +97,24 @@ RUN rpm -Uvh http://download-ib01.fedoraproject.org/pub/epel/7/x86_64/Packages/m
     rm -rf /var/cache/yum/*; yum clean all;
 
 ###<<< step-b2
+# TeX
+RUN yum -y install fontconfig-dev;\
+    mkdir /work/install-tl-unx; cd /work/install-tl-unx; curl -O http://ftp.jaist.ac.jp/pub/CTAN/systems/texlive/tlnet/install-tl-unx.tar.gz;\
+    tar xvf install-tl-unx.tar.gz --strip-components=1;\
+    echo "selected_scheme scheme-basic" >> /work/install-tl-unx/texlive.profile;\
+    /work/install-tl-unx/install-tl -profile /work/install-tl-unx/texlive.profile --repository http://ftp.jaist.ac.jp/pub/CTAN/systems/texlive/tlnet/;\
+    TEX_LIVE_VERSION=$(/work/install-tl-unx/install-tl --version | tail -n +2 | awk '{print $5}');\
+    ln -s "/usr/local/texlive/${TEX_LIVE_VERSION}" /usr/local/texlive/latest;\
+    rm -rf /var/cache/yum/*; yum clean all;
+ENV PATH="/usr/local/texlive/latest/bin/x86_64-linux:$PATH"
+RUN tlmgr install latexmk;\
+    tlmgr install collection-langjapanese;\
+    tlmgr install collection-latexextra;\
+    tlmgr install collection-fontsrecommended;\
+    tlmgr install collection-fontutils;\
+    tlmgr install multirow;
+
+###<<< step-b3
 
 # 日本語フォント for matplotlib
 COPY IPAfont00303.zip /usr/share/fonts
@@ -147,6 +167,11 @@ RUN pip install pip-review;\
     pip install keract;\
     pip install pydot;\
     pip install pydotplus;\
+    pip install networkx;\
+    pip install ipywidgets;\
+    pip install requests;\
+    pip install beautifulsoup4;\
+    pip install lxml;\
     \
     rpm -Uvh http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm;\
     yum -y install mysql-community-client; rm -rf /var/cache/yum/*; yum clean all;\
@@ -158,8 +183,11 @@ ENV LD_LIBRARY_PATH /usr/local/lib
 
 RUN yum -y install sudo;\
     rm -rf /var/cache/yum/*; yum clean all;\
-    useradd -m nysol;\
+    groupadd -g 79357 nysol;\
+    useradd -g 79357 -m -u 79357 nysol;\
     echo "nysol:nysol" | chpasswd;\
-    echo "nysol ALL=(ALL) ALL" >> /etc/sudoers;
+    echo "nysol ALL=(ALL) ALL" >> /etc/sudoers;\
+    echo "Defaults secure_path=\"$PYENV_ROOT/shims:$RBENV_ROOT/shims:$RBENV_ROOT/plugins/ruby-build/bin:$PYENV_ROOT/bin:$RBENV_ROOT/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\"" >> /etc/sudoers
+RUN rm -rf /work/*
 
 WORKDIR /home/nysol
