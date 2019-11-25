@@ -97,6 +97,7 @@ RUN rpm -Uvh http://download-ib01.fedoraproject.org/pub/epel/7/x86_64/Packages/m
     rm -rf /var/cache/yum/*; yum clean all;
 
 ###<<< step-b2
+
 # TeX
 RUN yum -y install fontconfig-dev;\
     mkdir /work/install-tl-unx; cd /work/install-tl-unx; curl -O http://ftp.jaist.ac.jp/pub/CTAN/systems/texlive/tlnet/install-tl-unx.tar.gz;\
@@ -105,6 +106,7 @@ RUN yum -y install fontconfig-dev;\
     /work/install-tl-unx/install-tl -profile /work/install-tl-unx/texlive.profile --repository http://ftp.jaist.ac.jp/pub/CTAN/systems/texlive/tlnet/;\
     TEX_LIVE_VERSION=$(/work/install-tl-unx/install-tl --version | tail -n +2 | awk '{print $5}');\
     ln -s "/usr/local/texlive/${TEX_LIVE_VERSION}" /usr/local/texlive/latest;\
+    yum -y install http://mirrors.ctan.org/support/texlive/texlive-dummy/EnterpriseLinux-7/texlive-dummy-2012a-1.el7.noarch.rpm;\
     rm -rf /var/cache/yum/*; yum clean all;
 ENV PATH="/usr/local/texlive/latest/bin/x86_64-linux:$PATH"
 RUN tlmgr install latexmk;\
