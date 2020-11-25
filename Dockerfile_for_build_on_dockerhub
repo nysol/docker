@@ -120,3 +120,22 @@ RUN rpm -Uvh http://download-ib01.fedoraproject.org/pub/epel/7/x86_64/Packages/m
     rm -rf /var/cache/yum/*; yum clean all;
 
 ###<<< step-b2
+
+# TeX
+RUN mkdir /work/install-tl-unx; cd /work/install-tl-unx; curl -O http://ftp.jaist.ac.jp/pub/CTAN/systems/texlive/tlnet/install-tl-unx.tar.gz;\
+    tar xvf install-tl-unx.tar.gz --strip-components=1;\
+    echo "selected_scheme scheme-basic" >> /work/install-tl-unx/texlive.profile;\
+    /work/install-tl-unx/install-tl -profile /work/install-tl-unx/texlive.profile --repository http://ftp.jaist.ac.jp/pub/CTAN/systems/texlive/tlnet/;\
+    TEX_LIVE_VERSION=$(/work/install-tl-unx/install-tl --version | tail -n +2 | awk '{print $5}');\
+    ln -s "/usr/local/texlive/${TEX_LIVE_VERSION}" /usr/local/texlive/latest;\
+    yum -y install http://mirrors.ctan.org/support/texlive/texlive-dummy/EnterpriseLinux-8/texlive-dummy-2020-4.el8.noarch.rpm;\
+    rm -rf /var/cache/yum/*; yum clean all;
+ENV PATH="/usr/local/texlive/latest/bin/x86_64-linux:$PATH"
+RUN tlmgr install latexmk;\
+    tlmgr install collection-langjapanese;\
+    tlmgr install collection-latexextra;\
+    tlmgr install collection-fontsrecommended;\
+    tlmgr install collection-fontutils;\
+    tlmgr install multirow;
+
+###<<< step-b3
