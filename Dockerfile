@@ -55,11 +55,13 @@ ENV PYENV_ROOT="/github/pyenv" \
 RUN yum install -y libffi-devel;\
     rm -rf /var/cache/yum/*; yum clean all;\
     pyenv init -; pyenv install 3.9.0; pyenv global 3.9.0;
-RUN pip install --upgrade pip;\
-    pip install pip-review;
 
 # rbenv/pyenv関連パス設定
 ENV PATH="$PYENV_ROOT/shims:$RBENV_ROOT/shims:$RBENV_ROOT/plugins/ruby-build/bin:$PATH"
+
+# pip関連
+RUN pip install --upgrade pip;\
+    pip install pip-review;
 
 # node.js
 RUN yum -y install nodejs;\
