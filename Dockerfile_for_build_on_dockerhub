@@ -139,3 +139,63 @@ RUN tlmgr install latexmk;\
     tlmgr install multirow;
 
 ###<<< step-b3
+
+# 日本語フォント for matplotlib
+COPY IPAfont00303.zip /usr/share/fonts
+RUN unzip -d /usr/share/fonts /usr/share/fonts/IPAfont00303.zip
+
+# jupyter
+RUN pip install jupyterhub;\
+    npm install -g configurable-http-proxy;\
+    pip install notebook;\
+    pip install jupyterlab;
+
+
+# jupyter(Rubyカーネル)
+RUN yum -y install zeromq-devel;\
+    gem install ffi-rzmq;\
+    gem install iruby --pre;\
+    iruby register --force;
+
+# jupyter(Javascriptカーネル)
+RUN npm install -g ijavascript;\
+    ijsinstall;
+
+# jupyter(Rカーネル)
+RUN R -e "install.packages('devtools', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('pbdZMQ', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('uuid', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('IRdisplay', repos='http://cran.rstudio.com/')";\
+    R -e "devtools::install_github('IRkernel/IRkernel')";\
+    R -e "IRkernel::installspec(user = FALSE)";
+
+# Rライブラリ
+RUN R -e "install.packages('igraph', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('glmnet', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('ROCR', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('tgp', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('arulesSequences', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('LPCM', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('LICORS', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('mnormt', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('psych', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('car', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('lavaan', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('caTools', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('doParallel', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('dplyr', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('foreach', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('formattable', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('ggplot2', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('GPArotation', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('gridExtra', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('gtable', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('leaps', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('randomForest', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('ranger', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('rpart.plot', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('tidyr', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('caret', repos='http://cran.rstudio.com/')";\
+    R -e "install.packages('tidyverse', repos='http://cran.rstudio.com/')";
+
+###<<< step-b4
