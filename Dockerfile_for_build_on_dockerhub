@@ -54,8 +54,8 @@ ENV PYENV_ROOT="/github/pyenv" \
     PATH="/github/pyenv/bin:$PATH"
 RUN yum install -y libffi-devel;\
     rm -rf /var/cache/yum/*; yum clean all;\
-    pyenv init -; pyenv install 3.9.0; pyenv global 3.9.0;\
-    pip install --upgrade pip;\
+    pyenv init -; pyenv install 3.9.0; pyenv global 3.9.0;
+RUN pip install --upgrade pip;\
     pip install pip-review;
 
 # rbenv/pyenv関連パス設定

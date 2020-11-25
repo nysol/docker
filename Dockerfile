@@ -54,8 +54,8 @@ ENV PYENV_ROOT="/github/pyenv" \
     PATH="/github/pyenv/bin:$PATH"
 RUN yum install -y libffi-devel;\
     rm -rf /var/cache/yum/*; yum clean all;\
-    pyenv init -; pyenv install 3.9.0; pyenv global 3.9.0;\
-    pip install --upgrade pip;\
+    pyenv init -; pyenv install 3.9.0; pyenv global 3.9.0;
+RUN pip install --upgrade pip;\
     pip install pip-review;
 
 # rbenv/pyenv関連パス設定
@@ -147,6 +147,17 @@ RUN pip install jupyterhub;\
     npm install -g configurable-http-proxy;\
     pip install notebook;\
     pip install jupyterlab;
+
+
+# jupyter(Rubyカーネル)
+RUN yum -y install zeromq-devel;\
+    gem install ffi-rzmq;\
+    gem install iruby --pre;\
+    iruby register --force;
+
+# jupyter(Javascriptカーネル)
+RUN npm install -g ijavascript;\
+    ijsinstall;
 
 # jupyter(Rカーネル)
 RUN R -e "install.packages('devtools', repos='http://cran.rstudio.com/')";\
