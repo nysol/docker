@@ -199,3 +199,66 @@ RUN R -e "install.packages('igraph', repos='http://cran.rstudio.com/')";\
     R -e "install.packages('tidyverse', repos='http://cran.rstudio.com/')";
 
 ###<<< step-b4
+
+# application用 (python, ruby, node.js, vue.js)
+RUN pip install flask;\
+    pip install -U flask-cors;\
+    pip install gevent-websocket;\
+    pip install flask_socketio;\
+    pip install flask_session;\
+    \
+    gem install thin;\
+    gem install sinatra;\
+    gem install sinatra-contrib;\
+    \
+    npm install -g @vue/cli @vue/cli-init;
+
+# pythonライブラリ
+RUN pip install numpy;\
+    pip install scipy;\
+    pip install pandas -U;\
+    pip install matplotlib;\
+    pip install seaborn;\
+    pip install bokeh;\
+    pip install plotly;\
+    pip install 'holoviews[recommended]';\
+    pip install mglearn;\
+    pip install scikit-learn;\
+    pip install scikit-image;\
+    pip install scikit-optimize;\
+    pip install opencv-python;\
+    pip install python-Levenshtein;\
+    pip install python-igraph;\
+    pip install param;\
+    pip install pyper;\
+    pip install keract;\
+    pip install pydot;\
+    pip install pydotplus;\
+    pip install networkx;\
+    pip install ipywidgets;\
+    pip install requests;\
+    pip install beautifulsoup4;\
+    pip install lxml;\
+    pip install html5lib;\
+    pip install pivottablejs;\
+    pip install xlrd;\
+    pip install msoffcrypto-tool;\
+    \
+    rpm -Uvh http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm;\
+    yum -y install mysql-community-client; rm -rf /var/cache/yum/*; yum clean all;\
+    pip install pymysql;\
+    pip install ipython-sql;
+
+# ユーザー環境設定
+ENV LD_LIBRARY_PATH /usr/local/lib
+
+RUN yum -y install sudo;\
+    rm -rf /var/cache/yum/*; yum clean all;\
+    groupadd -g 79357 nysol;\
+    useradd -g 79357 -m -u 79357 nysol;\
+    echo "nysol:nysol" | chpasswd;\
+    echo "nysol ALL=(ALL) ALL" >> /etc/sudoers;\
+    echo "Defaults secure_path=\"$PYENV_ROOT/shims:$RBENV_ROOT/shims:$RBENV_ROOT/plugins/ruby-build/bin:$PYENV_ROOT/bin:$RBENV_ROOT/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\"" >> /etc/sudoers
+RUN rm -rf /work/*
+
+WORKDIR /home/nysol

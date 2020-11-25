@@ -1,1 +1,1 @@
-FROM nysol/core:0.3.0
+FROM nysol/core:0.3
