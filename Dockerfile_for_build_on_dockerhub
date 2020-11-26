@@ -244,8 +244,9 @@ RUN pip install numpy;\
     pip install xlrd;\
     pip install msoffcrypto-tool;\
     \
-    rpm -Uvh http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm;\
-    yum -y install mysql-community-client; rm -rf /var/cache/yum/*; yum clean all;\
+    yum -y install https://dev.mysql.com/get/mysql80-community-release-el8-1.noarch.rpm;\
+    yum -y module disable mysql;\
+    yum -y install mysql-community-server; rm -rf /var/cache/yum/*; yum clean all;\
     pip install pymysql;\
     pip install ipython-sql;
 
