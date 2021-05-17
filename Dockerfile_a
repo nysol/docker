@@ -1,0 +1,144 @@
+FROM centos:centos8.2.2004
+
+LABEL maintainer="Hiro Maru <hiro.maruhashi@nysol.co.jp>"
+
+# 基本ライブラリ
+RUN dnf -y update \
+ && dnf -y groupinstall "Development Tools" \
+ && dnf -y install boost-devel libxml2-devel \
+                   glibc-locale-source glibc-langpack-en \
+                   quota \
+                   libcurl-devel \
+                   nano \
+ && dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm \
+ && dnf -y install https://rpms.remirepo.net/enterprise/remi-release-8.rpm \
+ && dnf config-manager --set-enabled powertools \
+ && dnf clean all \
+ && rm -rf /var/cache/yum
+
+# 言語を日本語に設定（必ずyum updateやyum reinstall glibcの後に実行)
+RUN localedef -f UTF-8 -i ja_JP ja_JP.UTF-8
+ENV LANG="ja_JP.UTF-8" \
+    LANGUAGE="ja_JP:ja" \
+    LC_ALL="ja_JP.UTF-8"
+# 日付を日本語に設定
+RUN echo 'ZONE="Asia/Tokyo"' > /etc/sysconfig/clock \
+ && rm -f /etc/localtime \
+ && ln -fs /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
+
+# Work Directories
+WORKDIR /work
+WORKDIR /github
+
+# ruby
+RUN cd /github; git clone https://github.com/rbenv/rbenv.git \
+ && echo 'export RBENV_ROOT="/github/rbenv"' >> ~/.bash_profile \
+ && echo 'export PATH="$RBENV_ROOT/bin:$PATH"' >> ~/.bash_profile \
+ && echo 'eval "$(rbenv init -)"' >> ~/.bash_profile
+ENV RBENV_ROOT="/github/rbenv" \
+    PATH="/github/rbenv/bin:$PATH"
+RUN rbenv init - \
+ && cd /github; git clone https://github.com/rbenv/ruby-build.git \
+ && cd ruby-build \
+ && ./install.sh \
+ && dnf install -y zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel \
+ && dnf clean all \
+ && rm -rf /var/cache/yum \
+ && rbenv install 2.7.2 \
+ && rbenv rehash \
+ && rbenv global 2.7.2
+
+# python
+RUN cd /github; git clone https://github.com/pyenv/pyenv.git \
+ && echo 'export PYENV_ROOT="/github/pyenv"' >> ~/.bash_profile \
+ && echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bash_profile \
+ && echo 'eval "$(pyenv init -)"' >> ~/.bash_profile
+ENV PYENV_ROOT="/github/pyenv" \
+    PATH="/github/pyenv/bin:$PATH"
+RUN dnf install -y libffi-devel \
+ && dnf clean all \
+ && rm -rf /var/cache/yum \
+ && pyenv init - \
+ && pyenv install 3.9.0 \
+ && pyenv global 3.9.0
+
+# rbenv/pyenv関連パス設定
+ENV PATH="$PYENV_ROOT/shims:$RBENV_ROOT/shims:$RBENV_ROOT/plugins/ruby-build/bin:$PATH"
+
+# pip関連
+RUN pip install --upgrade pip \
+ && pip install pip-review
+
+# node.js
+RUN dnf -y install nodejs \
+ && dnf clean all \
+ && rm -rf /var/cache/yum \
+    \
+ && npm update npm \
+ && npm install -g n \
+ && n latest
+
+# mcmd, mdmdex ( mbomsai, mkmeans, etc )
+RUN cd /github \
+ && git clone https://github.com/nysol/mcmd.git \
+ && cd mcmd \
+ && aclocal \
+ && autoreconf -i \
+ && ./configure \
+ && make \
+ && make install \
+ && rm -rf /github/mcmd \
+    \
+ && cd /github \
+ && git clone https://github.com/nysol/mcmdex.git \
+ && cd mcmdex \
+ && aclocal \
+ && autoreconf -i \
+ && ./configure \
+ && make \
+ && make install \
+ && rm -rf /github/mcmdex.git
+
+# zdd, take, mining, mruby, meach, view, fumi, nysol_python,etc
+RUN gem install nysol-zdd \
+# && gem install nysol-take \
+ && gem install nysol-mining \
+ && gem install nysol \
+ && gem install nysol-view \
+ && gem install nysol-fumi \
+    \
+ && cd /github \
+ && git clone https://github.com/nysol/nysol_python.git \
+ && cd nysol_python \
+ && python setup.py build \
+ && python setup.py install \
+ && cd /github \
+ && git clone https://github.com/nysol/miningpy.git \
+ && cd miningpy \
+ && python setup.py build \
+ && python setup.py install \
+ && cd /github \
+ && git clone https://github.com/nysol/viewpy.git \
+ && cd viewpy \
+ && python setup.py build \
+ && python setup.py install \
+ && cd /github/nysol_python \
+ && pip install . --upgrade
+
+# nysol_ruby
+# RUN gem install nysol-ruby
+
+# ユーザー環境設定
+ENV LD_LIBRARY_PATH /usr/local/lib
+
+RUN dnf -y install sudo \
+ && dnf clean all \
+ && rm -rf /var/cache/yum \
+ && groupadd -g 79357 nysol \
+ && useradd -g 79357 -m -u 79357 nysol \
+ && echo "nysol:nysol" | chpasswd \
+ && echo "nysol ALL=(ALL) ALL" >> /etc/sudoers \
+ && echo "Defaults secure_path=\"$PYENV_ROOT/shims:$RBENV_ROOT/shims:$RBENV_ROOT/plugins/ruby-build/bin:$PYENV_ROOT/bin:$RBENV_ROOT/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\"" >> /etc/sudoers
+RUN rm -rf /work/*
+
+WORKDIR /home/nysol
